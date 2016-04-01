@@ -1,0 +1,8 @@
+# coding=utf-8
+__author__ = 'Zhang Qifang'
+
+TEST_CMDID = 10000
+WRITE_SQL_CMDID = 2
+RETURN_CMDID = 3
+SEND_MESSAGE_CMDID = 4
+SEND_FILE_CMDID = 5
