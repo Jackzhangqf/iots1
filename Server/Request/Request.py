@@ -1,9 +1,10 @@
 # coding=utf-8
-__author__ = 'Yuheng Chen'
+__author__ = 'Qifang Zhang'
 
 import json
 import time
-
+from Logger.Logger import baseLogger
+import constant
 
 class Request(object):
     '''
@@ -34,24 +35,28 @@ class Request(object):
             self.rawBody = '{}'
         else:
             self.rawBody = Body
-
-        data = eval(self.rawBody)#create a dict
         self.cmdid = None
         self.timestamp = int(time.time())
         self.params = dict()
-	self.way = None
-	self.type = None
+        self.way = None
+        self.ver = None
+        try:
+            data = json.loads(self.rawBody)#create a dict
+        except:
+            baseLogger.info(msg=("[Request]:RawData format is error data :",rawBody))
+            self.cmdid = constant.INVALID_CMDID
+        
 
+        if data.has_key('F'):
+            self.cmdid = int(data['F'])
+        if data.has_key('T'):
+            self.timestamp = int(data['T'])
+        if data.has_key('P'):
+            self.params = data['P']
+        if data.has_key('V'):
+            self.ver = data['V']
         if data.has_key('C'):
-            self.cmdid = int(data['C'])
-        if data.has_key('timestamp'):
-            self.timestamp = int(data['timestamp'])
-        if data.has_key('D'):
-            self.params = data['D']
-	if data.has_key('T'):
-	    self.type = int(data['T'])
-	if data.has_key('W'):
-	    self.way = int(data['W'])
+            self.way = int(data['C'])
 
     def serialization(self):
         '''

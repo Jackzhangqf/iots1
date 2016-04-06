@@ -7,7 +7,7 @@ from Logger.Logger import baseLogger
 from Handler.Handler import BaseHandler
 import urls
 from tornado.iostream import StreamClosedError
-
+import constant
 
 class Connection(object):
     '''
@@ -29,6 +29,7 @@ class Connection(object):
         self._stream.set_close_callback(self.on_close)
         self.read_request()
         baseLogger.info(msg=("New Connection from server: ",address))
+        self.is_permission = False
 
     def read_request(self):
         try:
