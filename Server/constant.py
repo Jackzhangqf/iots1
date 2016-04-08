@@ -8,4 +8,10 @@ WRITE_SQL_CMDID = 2
 RETURN_CMDID = 3
 SEND_MESSAGE_CMDID = 4
 SEND_FILE_CMDID = 5
+LOGIN_CMDID = 6
+
+#------------return code
+R_OK = 0
+R_INVALID = 1
+R_PER = 2
 

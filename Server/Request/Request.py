@@ -40,6 +40,7 @@ class Request(object):
         self.params = dict()
         self.way = None
         self.ver = None
+
         try:
             data = json.loads(self.rawBody)#create a dict
         except:
@@ -49,14 +50,29 @@ class Request(object):
 
         if data.has_key('F'):
             self.cmdid = int(data['F'])
+        else:
+            self.cmdid = constant.INVALID_CMDID
+        if data.has_key('J'):
+            if data['J']==0:
+                self.cmdid = constant.LOGIN_CMDID
+        else:
+            self.cmdid = constant.INVALID_CMDID
         if data.has_key('T'):
             self.timestamp = int(data['T'])
+        else:
+            self.cmdid = constant.INVALID_CMDID
         if data.has_key('P'):
             self.params = data['P']
+        else:
+            self.cmdid = constant.INVALID_CMDID
         if data.has_key('V'):
             self.ver = data['V']
+        else:
+            self.cmdid = constant.INVALID_CMDID
         if data.has_key('C'):
             self.way = int(data['C'])
+        else:
+            self.cmdid = constant.INVALID_CMDID
 
     def serialization(self):
         '''

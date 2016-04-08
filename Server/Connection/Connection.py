@@ -8,6 +8,9 @@ from Handler.Handler import BaseHandler
 import urls
 from tornado.iostream import StreamClosedError
 import constant
+import json
+import constant
+import time
 
 class Connection(object):
     '''
@@ -30,7 +33,8 @@ class Connection(object):
         self.read_request()
         baseLogger.info(msg=("New Connection from server: ",address))
         self.is_permission = False
-
+        self.bao_count = 0
+        self.start=False
     def read_request(self):
         try:
             self._stream.read_until('\n', self.handle_request)
@@ -39,20 +43,47 @@ class Connection(object):
 
     def handle_request(self, data):
         tmp_body = data[:-1]
+        try:
+            tmp_json = json.loads(tmp_body)
+            if tmp_json.has_key('J'):
+                if tmp_json['J']==0:
+                    self.start=True
+        except Exception, e:
+            baseLogger.error(e.message)
 
-        request = Request(address=self._address, Body=tmp_body)
-        handler = urls.Handler_mapping.get(request.cmdid)
+        if self.is_permission or self.start:
+            self.start=False
+            request = Request(address=self._address, Body=tmp_body)
+            handler = urls.Handler_mapping.get(request.cmdid)
+            handler_instance = handler()
+            if isinstance(handler_instance,BaseHandler):
+                try:
+                    handler_instance.process(request=request)
+                    self._stream.write(handler_instance.res)
 
-        handler_instance = handler()
+                    if self.bao_count==0 and request.cmdid==constant.LOGIN_CMDID:
+                        self.is_permission=handler_instance.ext
+                       
+ 
+                    if handler_instance.ext:
+                        #Here can bijiao
 
-        if isinstance(handler_instance,BaseHandler):
-            try:
-                handler_instance.process(request=request)
-                self._stream.write(handler_instance.res)
-            except Exception as e:
-                baseLogger.error(e.message)
+                        #-------------------
+                        baseLogger.info(self.bao_count)
+                        self.bao_count=self.bao_count+1
+                        
+                        
+ 
+                    if (not self.is_permission) or (not handler_instance.ext):
+                        self._stream.close()
+                except Exception as e:
+                    baseLogger.error(e.message)
 
-        self.read_request()
+                self.read_request()
+        else:
+            self._stream.write(json.dumps({'T':int(time.time()),'R':constant.R_INVALID}))
+            baseLogger.info(msg=("This client is",self._address))
+            self._stream.close()
 
     def on_close(self):
         baseLogger.info(msg=("Server connection has been closed: ", self._address))
