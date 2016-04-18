@@ -36,8 +36,8 @@ class TestHandler(BaseHandler):
         else:
             raise TypeError
 
-@urls.handler(constant.WRITE_SQL_CMDID)
-class Write_Sql_Handler(BaseHandler):
+@urls.handler(constant.SEND_DATA_CMDID)
+class Write_data_Handler(BaseHandler):
 
     TAG = 'Write_Sql_Handler'
 
@@ -63,6 +63,7 @@ class Invalid_Handler(BaseHandler):
             self.res=json.dumps({'T':int(time.time()),'R':constant.R_INVALID})
         else:
             raise TypeError 
+
 @urls.handler(constant.LOGIN_CMDID)
 class Login_Handler(BaseHandler):
     
@@ -80,5 +81,35 @@ class Login_Handler(BaseHandler):
             else:
                 self.ext = False
                 self.res=json.dumps({'T':int(time.time()),'R':constant.R_INVALID})
+        else:
+            raise TypeError 
+
+@urls.handler(constant.LOGOUT_CMDID)
+class Logout_Handler(BaseHandler):
+    
+    TAG = 'Logout_Handler'
+
+    def process(self, request):
+        if isinstance(request,Request):
+                
+            '''add handler
+            '''
+            self.ext = False
+            self.res=json.dumps({'T':int(time.time()),'R':constant.R_OK})
+        else:
+            raise TypeError 
+
+@urls.handler(constant.START_CMDID)
+class Start_Handler(BaseHandler):
+    
+    TAG = 'Start_Handler'
+
+    def process(self, request):
+        if isinstance(request,Request):
+                
+            '''add handler
+            '''
+            self.ext = True
+            self.res=json.dumps({'T':int(time.time()),'R':constant.R_NEEDPW})
         else:
             raise TypeError 

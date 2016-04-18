@@ -8,6 +8,7 @@ from Settings import Settings
 from tornado.netutil import bind_sockets
 from tornado import process
 import tornado
+import tornado.autoreload
 
 
 if __name__ == '__main__':

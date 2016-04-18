@@ -35,6 +35,8 @@ class Connection(object):
         self.is_permission = False
         self.bao_count = 0
         self.start=False
+        
+
     def read_request(self):
         try:
             self._stream.read_until('\n', self.handle_request)
@@ -45,9 +47,15 @@ class Connection(object):
         tmp_body = data[:-1]
         try:
             tmp_json = json.loads(tmp_body)
+
+            if tmp_json.has_key('F'):
+                if tmp_json['F']==constant.START_CMDID:
+                    self.start=True      
+                    baseLogger.info(msg=("First : ",tmp_json['F']))
             if tmp_json.has_key('J'):
                 if tmp_json['J']==0:
                     self.start=True
+                    baseLogger.info(msg=("Second: ",tmp_json['F']))
         except Exception, e:
             baseLogger.error(e.message)
 
@@ -65,7 +73,7 @@ class Connection(object):
                         self.is_permission=handler_instance.ext
                        
  
-                    if handler_instance.ext:
+                    if handler_instance.ext and (not request.cmdid ==constant.START_CMDID):
                         #Here can bijiao
 
                         #-------------------
@@ -74,7 +82,7 @@ class Connection(object):
                         
                         
  
-                    if (not self.is_permission) or (not handler_instance.ext):
+                    if not handler_instance.ext:
                         self._stream.close()
                 except Exception as e:
                     baseLogger.error(e.message)
