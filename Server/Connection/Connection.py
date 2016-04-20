@@ -12,6 +12,7 @@ import json
 import constant
 import time
 
+_TIME_OUT=10
 class Connection(object):
     '''
     Connection is the base Class for server and client communication.
@@ -27,6 +28,7 @@ class Connection(object):
 
     def __init__(self, stream, address):
         Connection.clients.add(self)
+
         self._stream = stream
         self._address = address
         self._stream.set_close_callback(self.on_close)
@@ -35,7 +37,25 @@ class Connection(object):
         self.is_permission = False
         self.bao_count = 0
         self.start=False
+
+
+
+        self.timeout = None
+        self.io_loop = self._stream.io_loop
         
+    def set_timeout(self,timeout):
+        self.timeout = self.io_loop.add_timeout(self.io_loop.time() + timeout,
+                                                self.on_timeout)
+
+    def on_timeout(self):
+        self.timeout = None
+        baseLogger.info("Timeout!")
+        self._stream.close()
+    def clear_timeout(self):
+        if self.timeout is not None:
+            self.io_loop.remove_timeout(self.timeout)
+
+
 
     def read_request(self):
         try:
@@ -45,19 +65,21 @@ class Connection(object):
 
     def handle_request(self, data):
         tmp_body = data[:-1]
-        try:
-            tmp_json = json.loads(tmp_body)
+        self.clear_timeout()
+        if self.bao_count==0:
+            try:
+                tmp_json = json.loads(tmp_body)
 
-            if tmp_json.has_key('F'):
-                if tmp_json['F']==constant.START_CMDID:
-                    self.start=True      
-                    baseLogger.info(msg=("First : ",tmp_json['F']))
-            if tmp_json.has_key('J'):
-                if tmp_json['J']==0:
-                    self.start=True
-                    baseLogger.info(msg=("Second: ",tmp_json['F']))
-        except Exception, e:
-            baseLogger.error(e.message)
+                if tmp_json.has_key('F'):
+                    if tmp_json['F']==constant.START_CMDID:
+                        self.start=True      
+                        baseLogger.info(msg=("First : ",tmp_json['F']))
+                if tmp_json.has_key('J'):
+                    if tmp_json['J']==0 and tmp_json["F"]==constant.LOGIN_CMDID:
+                        self.start=True
+                        baseLogger.info(msg=("Second: ",tmp_json['F']))
+            except Exception, e:
+                baseLogger.error(e.message)
 
         if self.is_permission or self.start:
             self.start=False
@@ -77,9 +99,11 @@ class Connection(object):
                         #Here can bijiao
 
                         #-------------------
-                        baseLogger.info(self.bao_count)
-                        self.bao_count=self.bao_count+1
-                        
+                        if not request.cmdid == constant.HEART_BEAT_CMDID:
+                            baseLogger.info(self.bao_count)
+                            self.bao_count=self.bao_count+1
+                        else:
+                            baseLogger.info("Beat!")
                         
  
                     if not handler_instance.ext:
@@ -92,7 +116,7 @@ class Connection(object):
             self._stream.write(json.dumps({'T':int(time.time()),'R':constant.R_INVALID}))
             baseLogger.info(msg=("This client is",self._address))
             self._stream.close()
-
+        self.set_timeout(_TIME_OUT)
     def on_close(self):
         baseLogger.info(msg=("Server connection has been closed: ", self._address))
         Connection.clients.remove(self)

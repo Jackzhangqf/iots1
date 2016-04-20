@@ -77,7 +77,7 @@ class Login_Handler(BaseHandler):
                 user = request.params['U']
                 baseLogger.info(msg=("[Login_Handler]:Welcome to IoT:",user))
                 self.ext = True
-                self.res=json.dumps({'T':int(time.time()),'R':constant.R_OK})
+                self.res=json.dumps({'T':int(time.time()),'R':constant.R_POK})
             else:
                 self.ext = False
                 self.res=json.dumps({'T':int(time.time()),'R':constant.R_INVALID})
@@ -110,6 +110,37 @@ class Start_Handler(BaseHandler):
             '''add handler
             '''
             self.ext = True
-            self.res=json.dumps({'T':int(time.time()),'R':constant.R_NEEDPW})
+            self.res=json.dumps({'T':int(time.time()),'R':constant.R_CONNECT  })
+        else:
+            raise TypeError 
+
+
+@urls.handler(constant.HEART_BEAT_CMDID)
+class Heart_beat_Handler(BaseHandler):
+    
+    TAG = 'Heart_beat_Handler'
+
+    def process(self, request):
+        if isinstance(request,Request):
+                
+            '''add handler
+            '''
+            self.ext = True
+            self.res=json.dumps({'T':int(time.time()),'R':constant.R_BEAT})
+        else:
+            raise TypeError 
+
+@urls.handler(constant.LOGOUT_CMDID)
+class Logout_Handler(BaseHandler):
+    
+    TAG = 'Logout_Handler'
+
+    def process(self, request):
+        if isinstance(request,Request):
+                
+            '''add handler
+            '''
+            self.ext = True
+            self.res=json.dumps({'T':int(time.time()),'R':constant.R_UNCONNECT})
         else:
             raise TypeError 
