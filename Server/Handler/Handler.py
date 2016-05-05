@@ -39,13 +39,17 @@ class TestHandler(BaseHandler):
 @urls.handler(constant.SEND_DATA_CMDID)
 class Write_data_Handler(BaseHandler):
 
-    TAG = 'Write_Sql_Handler'
+    TAG = 'Write_data_Handler'
 
     def process(self,request):
         if isinstance(request, Request):
             
             '''add handler
             '''
+            self.ext=True
+            self.res=json.dumps({'T':int(time.time()),'R':constant.R_DOK})
+            sl= request.params['SL']
+            baseLogger.info(msg=("[Write_data_Handler]:sensor list is :",sl))
         else:
             raise TypeError
 

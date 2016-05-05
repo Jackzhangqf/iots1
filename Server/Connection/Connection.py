@@ -12,7 +12,7 @@ import json
 import constant
 import time
 
-_TIME_OUT=10
+_TIME_OUT=200
 class Connection(object):
     '''
     Connection is the base Class for server and client communication.
@@ -37,6 +37,7 @@ class Connection(object):
         self.is_permission = False
         self.bao_count = 0
         self.start=False
+        baseLogger.info(msg=("Now Clients count is : ",len(Connection.clients)))
 
 
 
@@ -110,6 +111,7 @@ class Connection(object):
                         self._stream.close()
                 except Exception as e:
                     baseLogger.error(e.message)
+                    self._stream.close()
 
                 self.read_request()
         else:
