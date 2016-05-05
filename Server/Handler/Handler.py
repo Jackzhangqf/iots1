@@ -8,6 +8,7 @@ from Logger.Logger import testLogger
 from Logger.Logger import baseLogger
 import time
 import json
+import torndb
 
 class BaseHandler(object):
     '''
@@ -49,6 +50,10 @@ class Write_data_Handler(BaseHandler):
             self.ext=True
             self.res=json.dumps({'T':int(time.time()),'R':constant.R_DOK})
             sl= request.params['SL']
+            t=request.params['D']
+            t_struct=time.localtime(t)
+            t_str=time.strftime("%Y-%m-%d  %H:%M:%S",t_struct)
+            baseLogger.info(msg=("[Write_data_Handler]:date is  :",t_str))
             baseLogger.info(msg=("[Write_data_Handler]:sensor list is :",sl))
         else:
             raise TypeError

@@ -12,7 +12,7 @@ import json
 import constant
 import time
 
-_TIME_OUT=200
+_TIME_OUT=100
 class Connection(object):
     '''
     Connection is the base Class for server and client communication.
