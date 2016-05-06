@@ -93,7 +93,7 @@ class Write_data_Handler(BaseHandler):
                             if section_invalid:
                                 self.ext=True
                                 self.res=json.dumps({'T':int(time.time()),'R':constant.R_DOK})
-            
+                db.close()
             except Exception as e:
                 baseLogger.error(e.message)
                 self.ext=False
@@ -133,24 +133,10 @@ class Login_Handler(BaseHandler):
                 self.res=json.dumps({'T':int(time.time()),'R':constant.R_POK})
             else:
                 self.ext = False
-                self.res=json.dumps({'T':int(time.time()),'R':constant.R_INVALID})
+                self.res=json.dumps({'T':int(time.time()),'R':constant.R_PER})
         else:
             raise TypeError 
 
-@urls.handler(constant.LOGOUT_CMDID)
-class Logout_Handler(BaseHandler):
-    
-    TAG = 'Logout_Handler'
-
-    def process(self, request):
-        if isinstance(request,Request):
-                
-            '''add handler
-            '''
-            self.ext = False
-            self.res=json.dumps({'T':int(time.time()),'R':constant.R_OK})
-        else:
-            raise TypeError 
 
 @urls.handler(constant.START_CMDID)
 class Start_Handler(BaseHandler):
@@ -193,7 +179,7 @@ class Logout_Handler(BaseHandler):
                 
             '''add handler
             '''
-            self.ext = True
+            self.ext = False
             self.res=json.dumps({'T':int(time.time()),'R':constant.R_UNCONNECT})
         else:
             raise TypeError 

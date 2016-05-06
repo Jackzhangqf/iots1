@@ -90,7 +90,8 @@ class Connection(object):
             if isinstance(handler_instance,BaseHandler):
                 try:
                     handler_instance.process(request=request)
-                    self._stream.write(handler_instance.res)
+                    if handler_instance.res :
+                        self._stream.write(handler_instance.res)
 
                     if self.bao_count==0 and request.cmdid==constant.LOGIN_CMDID:
                         self.is_permission=handler_instance.ext
