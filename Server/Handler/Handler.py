@@ -9,7 +9,10 @@ from Logger.Logger import baseLogger
 import time
 import json
 import torndb
-
+QUERY_REGION='SELECT * FROM iot_regionm  WHERE region_id =%s'
+QUERY_DEV='SELECT * FROM iot_devm  WHERE dev_id =%s'
+QUERY_SENSOR='SELECT * FROM iot_sensorm  WHERE sensor_id =%s'
+INSERT_DATA = 'INSERT INTO iot_datam (date_time,data,sensor_id) VALUES (%s,%s,%s)'
 class BaseHandler(object):
     '''
     Base Class for Handler.
@@ -47,14 +50,55 @@ class Write_data_Handler(BaseHandler):
             
             '''add handler
             '''
-            self.ext=True
-            self.res=json.dumps({'T':int(time.time()),'R':constant.R_DOK})
-            sl= request.params['SL']
-            t=request.params['D']
-            t_struct=time.localtime(t)
-            t_str=time.strftime("%Y-%m-%d  %H:%M:%S",t_struct)
-            baseLogger.info(msg=("[Write_data_Handler]:date is  :",t_str))
-            baseLogger.info(msg=("[Write_data_Handler]:sensor list is :",sl))
+            try:
+                baseLogger.info(msg=("[Write_data_Handler]request.params is:",request.params))
+                data=request.params['L']
+                data_time = request.params['D']-3600*8
+                data_date=time.strftime("%Y-%m-%d  %H:%M:%S",time.localtime(data_time))
+                
+                region=request.params['R']
+                db_region = None
+
+                dev=request.params['ID']
+                db_dev = None
+
+                sensor=request.params['SL']#This is a list
+                db_sensor = None
+
+                db = torndb.Connection(constant.DB_HOST,constant.DB_NAME,user=constant.DB_USER,password=constant.DB_PW)
+                db_region = db.get(QUERY_REGION,region)
+                if db_region ==None:
+                    self.ext=False #exit client
+                    self.res=json.dumps({'T':int(time.time()),'R':constant.R_INVALID})
+                else:
+
+                    db_dev = db.get(QUERY_DEV,region*256+dev)
+                    if db_dev ==None:
+                        self.ext=False
+                        self.res=json.dumps({'T':int(time.time()),'R':constant.R_INVALID})
+                    else:
+                        if isinstance(sensor,list):
+                            i=0
+                            section_invalid = False
+                            for s in sensor:
+                                db_sensor=db.get(QUERY_SENSOR,region*(2**24)+dev*(2**16)+s)
+                                if db_sensor ==None:
+                                    self.ext=False
+                                    self.res=json.dumps({'T':int(time.time()),'R':constant.R_INVALID})
+                                else:
+                                    db.insertmany(INSERT_DATA,[[data_date,data[i],db_sensor['id']]])
+                                    section_invalid = True
+                                    i=i+1
+
+                            if section_invalid:
+                                self.ext=True
+                                self.res=json.dumps({'T':int(time.time()),'R':constant.R_DOK})
+            
+            except Exception as e:
+                baseLogger.error(e.message)
+                self.ext=False
+                self.res=json.dumps({'T':int(time.time()),'R':constant.R_INVALID})
+
         else:
             raise TypeError
 

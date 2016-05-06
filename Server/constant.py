@@ -25,8 +25,8 @@ R_BEAT=8
 
 
 #MySQL connect
-DB_HOST=rdsf2oxht2zf3yo5pd99o.mysql.rds.aliyuncs.com
-DB_NAME=r77t4c71r63z7k6i
-DB_USER=r77t4c71r63z7k6i
-DB_PW=Zqf5201314
+DB_HOST='rdsf2oxht2zf3yo5pd99o.mysql.rds.aliyuncs.com'
+DB_NAME='r77t4c71r63z7k6i'
+DB_USER='r77t4c71r63z7k6i'
+DB_PW='Zqf5201314'
 DB_PORT=3306
