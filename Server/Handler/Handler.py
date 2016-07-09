@@ -86,7 +86,8 @@ class Write_data_Handler(BaseHandler):
                                     self.ext=False
                                     self.res=json.dumps({'T':int(time.time()),'R':constant.R_INVALID})
                                 else:
-                                    db.insertmany(INSERT_DATA,[[data_date,data[i],db_sensor['id']]])
+                                    if db_sensor['enable']:#add sensor enable function2016/07/09
+                                        db.insertmany(INSERT_DATA,[[data_date,data[i],db_sensor['id']]])
                                     section_invalid = True
                                     i=i+1
 
